@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本困惑度检查API接口测试工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #4facfe;
+        }
+        
+        .instructions h3 {
+            color: #4facfe;
+            margin-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.3s ease;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+		.stats {
+            margin: 15px 0 15px 0;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+		
+        .submit-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            flex: 1;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+        
+        .clear-btn {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .clear-btn:hover {
+            background: #5a6268;
+        }
+        
+        .result-section {
+            margin-top: 30px;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .result-header h3 {
+            color: #4facfe;
+        }
+        
+        .result-content {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 100px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #4facfe;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success {
+            color: #28a745;
+            border-left-color: #28a745;
+        }
+        
+        .error {
+            color: #dc3545;
+            border-left-color: #dc3545;
+        }
+        
+        .status-indicator {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .timestamp {
+            font-size: 12px;
+            color: #6c757d;
+            margin-left: auto;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>文本困惑度检查API接口测试工具</h1>
+            <p>输入文本内容，调用文本困惑度(PPL)检查API接口并查看返回结果</p>
+        </div>
+        
+        <div class="content">
+            <div class="instructions">
+                <h3>使用说明</h3>
+                <p>1. 在下方输入框中输入要发送的文本内容，每一行代表一句</p>
+                <p>2. 点击"提交"按钮调用后台POST接口</p>
+                <p>3. 接口返回的结果将显示在下方结果区域，困惑度PPL阈值暂定为20，PPL小于20的句子有明确含义</p>
+                <p>4. 文本字符数量多时需要更多时间等待，最多输入5行或者200个字符</p>
+            </div>
+            <div class="form-group">
+                <label for="apiUrl">接口URL：</label>
+                <input type="text" id="apiUrl" value="http://localhost:8000/ppl_batch" 
+                       style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 5px;">
+            </div>
+            
+            <div class="form-group">
+                <label for="requestData">请输入待检查的文本，每行代表一句：</label>
+                <textarea id="requestData" placeholder=''>这个产品的功能非常全面，操作也很简单
+上海市徐汇区虹桥路500号
+阿斯蒂芬家家都发啊阿凡达的法案
+ad dud adiaji safadf daif
+				</textarea>
+            </div>
+            
+            <div class="stats" id="inputStats">
+				行数: 0 | 字符数: 0
+			</div>
+			
+            <div class="button-group">
+                <button class="submit-btn" id="submitBtn" onclick="submitData()">提交请求</button>
+                <button class="clear-btn" onclick="clearData()">清空输入</button>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>正在请求接口，请稍候...</p>
+            </div>
+            
+            <div class="result-section">
+                <div class="result-header">
+                    <h3>返回结果</h3>
+                    <div class="timestamp" id="timestamp"></div>
+                </div>
+                <div class="result-content" id="resultContent">
+                    请求结果将显示在这里...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+		// 更新输入统计信息
+        function updateInputStats() {
+            const inputText = document.getElementById('requestData').value;
+            const lines = inputText.split('\n').filter(line => line.trim() !== '');
+            const stats = document.getElementById('inputStats');
+            stats.innerHTML = `行数: ${lines.length} | 字符数: ${inputText.length}`;
+			
+			const canNotSubmit = (lines.length > 5 || inputText.length > 500);
+			if (canNotSubmit) {
+				document.getElementById('submitBtn').disabled = true;
+				stats.innerHTML = `行数: ${lines.length} | 字符数: ${inputText.length}` + `，文字行数或者总字符数超限`;
+				stats.classList.add('error');
+			} else {
+				document.getElementById('submitBtn').disabled = false;
+				stats.classList.remove('error');
+			}
+        }
+		
+        function updateTimestamp() {
+            const now = new Date();
+            const timestamp = document.getElementById('timestamp');
+            timestamp.textContent = now.toLocaleString('zh-CN');
+        }
+        
+        function submitData() {
+            const loading = document.getElementById('loading');
+            const resultContent = document.getElementById('resultContent');
+            const apiUrl = document.getElementById('apiUrl').value;
+            const requestData = document.getElementById('requestData').value;
+            
+            // 显示加载状态
+            loading.style.display = 'block';
+            resultContent.innerHTML = '请求中...';
+            resultContent.className = 'result-content';
+            
+            // 验证JSON格式
+            let jsonData;
+            try {
+                jsonData = convertToJSON();
+            } catch (e) {
+                loading.style.display = 'none';
+                resultContent.innerHTML = '错误：输入的数据不是有效的JSON格式\n' + e.message;
+                resultContent.classList.add('error');
+                updateTimestamp();
+                return;
+            }
+            
+			document.getElementById('submitBtn').disabled = true;
+			
+            // 发送POST请求
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => {
+				document.getElementById('submitBtn').disabled = false;
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 隐藏加载状态
+                loading.style.display = 'none';
+                
+				// 处理逻辑
+				const processTexts = (texts,ppls,threshold) => {
+					// 验证输入格式
+					if (!Array.isArray(texts) || !Array.isArray(ppls)) {
+						throw new Error("输入格式错误：texts和ppls必须为数组");
+					}
+
+					// 处理文本并添加标记
+					const processedTexts = texts.map((text, index) => {
+						// 处理数组长度不一致的情况
+						const ppl = index < ppls.length ? ppls[index] : null;
+						
+						// 添加标记
+						const judge = ppl !== null 
+							? (ppl > threshold ? false: true) 
+							: "[未知PPL值]";
+						
+						if (!judge) {
+							return `<div class="error">${text}: 困惑度=${ppl}，没有意义</div>\n`;
+						} else {
+							return `<div class="success">${text}: 困惑度=${ppl}，有意义</div>\n`;
+						}
+					});
+
+					// 返回处理结果
+					return processedTexts;
+				};
+
+				// 执行处理
+				try {
+					const outputData = processTexts(jsonData.texts,data.ppls,data.threshold);
+					// console.log(JSON.stringify(outputData, null, 2));
+					
+					const lines = String(outputData).split('\n')
+                    .map(line => {
+						return line.startsWith(',') ? line.substring(1) : line;
+					}).join('\n');
+					
+					// 显示成功结果
+					resultContent.innerHTML = lines; //JSON.stringify(data, null, 2);
+					
+					resultContent.classList.add('success');
+					updateTimestamp();
+				
+				} catch (error) {
+					console.error("处理失败:", error.message);
+				}
+
+				
+                
+            })
+            .catch(error => {
+                // 隐藏加载状态
+                loading.style.display = 'none';
+                
+                // 显示错误信息
+                resultContent.innerHTML = '请求失败: ' + error.message;
+                resultContent.classList.add('error');
+                updateTimestamp();
+            });
+        }
+        
+        function clearData() {
+            document.getElementById('requestData').value = '';
+            document.getElementById('resultContent').innerHTML = '请求结果将显示在这里...';
+            document.getElementById('resultContent').className = 'result-content';
+            document.getElementById('timestamp').textContent = '';
+			updateInputStats();
+        }
+		
+		
+        // 将多行文本转换为JSON
+        function convertToJSON() {
+            const inputText = document.getElementById('requestData').value;
+            //const outputDiv = document.getElementById('jsonOutput');
+            
+            try {
+                // 按行分割文本，过滤空行
+                const lines = inputText.split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line !== '');
+                
+                // 构建JSON对象
+                const jsonData = {
+                    texts: lines
+                };
+                
+				return jsonData;
+				
+                // 格式化并显示JSON
+                // outputDiv.innerHTML = JSON.stringify(jsonData, null, 4);
+                // outputDiv.parentElement.classList.add('success');
+                // outputDiv.parentElement.classList.remove('error');
+                
+                // 更新统计信息
+                //updateOutputStats(jsonData);
+                
+            } catch (error) {
+                //outputDiv.innerHTML = '转换出错: ' + error.message;
+                //outputDiv.parentElement.classList.add('error');
+                //outputDiv.parentElement.classList.remove('success');
+            }
+        }
+		
+        
+        // 页面加载时初始化时间戳
+        window.onload = updateTimestamp;
+        		
+        // 初始化事件监听
+        document.getElementById('requestData').addEventListener('input', updateInputStats);
+        
+        // 页面加载时初始化统计信息
+        window.onload = function() {
+            updateInputStats();
+			
+			const url = new URL(window.location.href);
+			url.pathname = '';
+			
+			document.getElementById('apiUrl').value = url + 'ppl_batch';
+        };
+		
+        // 添加键盘快捷键支持
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'Enter') {
+                submitData();
+            }
+        });
+    </script>
+</body>
+</html>

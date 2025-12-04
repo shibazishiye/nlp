@@ -23,6 +23,12 @@ COPY service/ ./service/
 # The service will handle missing models gracefully
 RUN mkdir -p ./models
 
+COPY models ./models
+
+RUN mkdir -p ./static
+
+COPY static ./static
+
 # Expose port
 EXPOSE 8000
 

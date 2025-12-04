@@ -1,17 +1,18 @@
-# mlm_server.py
+# main.py
 import asyncio
 import time
 import numpy as np
 import onnxruntime as ort
 from typing import List
 from fastapi import FastAPI
+from fastapi.responses import Response
 from pydantic import BaseModel
 from transformers import AutoTokenizer
 import uvicorn
 import math
 
 # ===================== CONFIG =====================
-ONNX_PATH = "/app/service/app/roberta_wwm_mlm_dynamic_new.onnx"
+ONNX_PATH = "/app/models/roberta_wwm_mlm_dynamic_new.onnx"
 TOKENIZER_NAME = "hfl/chinese-roberta-wwm-ext"
 USE_CUDA = False
 
@@ -240,6 +241,15 @@ async def health_check():
         version="1.0.0"
     )
 
+@app.get("/index")
+async def read_root():
+    try:
+        with open("/app/static/index.html", "r", encoding="utf-8") as f:
+            content = f.read()
+        return Response(content, media_type="text/html")
+    except FileNotFoundError:
+        return Response("File not found", status_code=404)
+        
 @app.get("/")
 async def root():
     """
@@ -260,4 +270,4 @@ async def root():
     
 # ---------------- Run server ----------------
 if __name__ == "__main__":
-    uvicorn.run("mlm_server:app", host="0.0.0.0", port=8000, workers=1)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=1)
