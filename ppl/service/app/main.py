@@ -9,6 +9,8 @@ from fastapi.responses import Response
 from pydantic import BaseModel
 from transformers import AutoTokenizer
 import uvicorn
+from uvicorn import Config, Server
+import multiprocessing
 import math
 
 # ===================== CONFIG =====================
@@ -270,4 +272,5 @@ async def root():
     
 # ---------------- Run server ----------------
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=1)
+    cpu_count = multiprocessing.cpu_count()    
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=cpu_count*2)   
